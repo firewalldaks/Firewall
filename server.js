@@ -6,7 +6,7 @@ app.use(express.static('public'))
 const http = require('http').Server(app)
 const serverSocket = require('socket.io')(http)
 
-const porta = 8181 
+const porta = 8181
 
 http.listen(porta, function (){
     console.log('Servidor Iniciado: ' + porta)
