@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script>
+        function valquiria(){
+            document.getElementById('mesa').style.display = "none"
+            document.getElementById('form2').style.display = "block"
+            document.getElementById('msg').focus()
+        }
+    </script>
+</head>
+
+<body class="bg bg-dark">
+
+    <header>
+        <form id="form1" onsubmit="return valquiria()">
+            <div id="mesa" class="input-group p-3">
+                <input type="text" name="usu" id="usu" class="form-control" placeholder="Digite Nick" aria-label="Recipient's username" aria-describedby="button-addon2">
+                <button type="submit" id="ons" class="btn btn-primary" type="button" id="button-addon2">Ok</button>
+            </div>
+        </form>
+    </header>
+
+    <div id="mensage"></div>
+    <span id="status"></span>
+    <div style="width:100%; height:50px;"></div>
+
+    <section>
+        <form id="form2" style="display:none">
+            <div class="input-group p-3">
+                <input type="text" name="msg" id="msg" class="form-control" placeholder="Digite uma menssagem" autofocus aria-label="Recipient's username" aria-describedby="button-addon2">
+                <button type="submit" class="btn btn-primary" type="button" id="button-addon2">Enviar</button>
+            </div>
+        </form>
+    </section>
+
+    <script>
+        $(function(){
+            const socket = io()
+            socket.nickname = ""
+
+            $('#form1').submit(function(evt){
+                if(socket.nickname === ''){
+                    socket.nickname = $('#usu').val()
+                    socket.emit('login', socket.nickname)
+
+                    $('#msg').keypress(function(evt){
+                        socket.emit('status', `${socket.nickname} está digitando...`)
+                    })
+
+                    $('#msg').keyup(function(evt){
+                        socket.emit('status', '')
+                    })
+
+                    socket.on('status', function(msg){
+                        $('#status').html(msg)
+                    })
+
+                } else {
+                    socket.emit('chat msg', $('#msg').val())
+                }
+
+                return false
+            })
+
+            $('#form2').submit(function(evt){
+                if(socket.nickname === ''){
+                    socket.nickname = $('#usu').val()                  
+                    
+                } else {
+                    socket.emit('chat msg', $('#msg').val())
+                }
+
+                $('#msg').val('')
+                return false
+            })
+
+            socket.on('chat msg', function(msg){
+                $('#mensage').append($('<div class="bg bg-dark p-1 m-1">').text(msg))
+            })
+
+        })
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
+</body>
+</html>
